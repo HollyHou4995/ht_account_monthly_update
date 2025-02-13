@@ -14,21 +14,22 @@ def compare_data(old_file, new_file):
         old_filtered = old_data[old_data['CLM Contract Type'].isin(['National', 'Pharmacy'])]
         new_filtered = new_data[new_data['CLM Contract Type'].isin(['National', 'Pharmacy'])]
 
-        # Drop duplicates based on 'Vendor #'
-        old_df = old_filtered.drop_duplicates(subset='Vendor #', keep='first')
-        new_df = new_filtered.drop_duplicates(subset='Vendor #', keep='first')
-
         # Identify newly added contracts
-        new_added = new_df[~new_df['Contract #'].isin(old_df['Contract #'])]
+        new_added = new_filtered[~new_filtered['Contract #'].isin(old_filtered['Contract #'])]
 
         # Identify removed contracts
-        removed_in_old = old_df[~old_df['Contract #'].isin(new_df['Contract #'])]
+        removed_in_old = old_filtered[~old_filtered['Contract #'].isin(new_filtered['Contract #'])]
+
+        # Drop duplicates based on both 'Primary Contacts Emails' and 'Secondary Contacts Emails'
+        new_added = new_added.drop_duplicates(subset=['Primary Contacts Emails', 'Secondary Contacts Emails'])
+        removed_in_old = removed_in_old.drop_duplicates(subset=['Primary Contacts Emails', 'Secondary Contacts Emails'])
 
         return new_added, removed_in_old
 
     except Exception as e:
-        st.error(f"An error occurred: {e}")
+        print(f"An error occurred: {e}")
         return None, None
+
 
 # Streamlit UI
 def main():
